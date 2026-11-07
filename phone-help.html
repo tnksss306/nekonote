@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>スマホがつながらないとき｜猫の手アドミン</title>
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  .win-pick { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 20px; }
+  .win-pick button { font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 10px; border: 2px solid currentColor; background: none; color: inherit; cursor: pointer; }
+  .win-pick button[aria-pressed="true"] { background: #2f6f5e; border-color: #2f6f5e; color: #fff; }
+  body[data-win="10"] .w11, body[data-win="11"] .w10 { display: none; }
+  .win-label { display: inline-block; font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 6px; background: #e6efe9; color: #2f6f5e; margin-bottom: 4px; }
+  .done { margin: 6px 0 18px; padding: 8px 12px; border-left: 4px solid #2f6f5e; background: #f1f7f3; }
+  .say { padding: 10px 14px; border: 1px dashed #999; border-radius: 8px; background: #fafafa; }
+  @media (prefers-color-scheme: dark) {
+    .win-label { background: #23392f; color: #bfe3d2; }
+    .done { background: #1d2a24; }
+    .say { background: #222; border-color: #666; }
+  }
+</style>
+</head>
+<body>
+<header class="top"><div class="inner"><nav><a class="brand" href="./"><img src="icon.png" alt="" width="28" height="28">猫の手アドミン</a><a href="guide.html">初期設定説明書</a><a href="./#contact">お問い合わせ</a></nav></div></header>
+<main class="inner">
+<article class="doc">
+  <h1>スマホがつながらないとき</h1>
+  <p>「スマホで入力」で、スマホの画面が開かないときの直し方です。上から順に試してください。</p>
+
+  <p><strong>パソコンの Windows はどちらですか？</strong>（アプリの画面に「このパソコンは Windows 〇〇 です」と出ています）</p>
+  <div class="win-pick">
+    <button type="button" data-win="11">Windows 11</button>
+    <button type="button" data-win="10">Windows 10</button>
+  </div>
+
+  <h2>1. 「Windows セキュリティの重要な警告」で［キャンセル］を押してしまったとき</h2>
+  <p>この窓で［キャンセル］を押すと、Windows がスマホからの接続を止めてしまいます。いちばん多い原因です。</p>
+  <h3>アプリのボタンで直す（かんたん）</h3>
+  <ol>
+    <li>猫の手アドミンの［📱 スマホで入力・説明書］の画面で、［スマホの画面が開かない］を押します。</li>
+    <li>［スマホからの接続を許可する］を押します。</li>
+    <li>「このアプリがデバイスに変更を加えることを許可しますか？」と出たら、［はい］を押します。</li>
+  </ol>
+  <p class="done">「スマホからの接続を許可しました」と出たら、スマホでもう一度 QR コードを読みます。</p>
+  <p>［はい］が出ずに、管理者のパスワードを聞かれたときは、「4. 会社のパソコンで、自分では直せないとき」を見てください。</p>
+
+  <h3>自分で設定を直す</h3>
+  <ol>
+    <li>パソコンの画面の左下の<span class="w10">スタートボタン（Windows のマーク）の右にある検索の欄</span><span class="w11">スタートボタン（Windows のマーク）を押して、上の検索の欄</span>に「ファイアウォール」と打ちます。</li>
+    <li>出てきた「Windows Defender ファイアウォール」を押します。</li>
+    <li>画面の左の「Windows Defender ファイアウォールを介したアプリまたは機能を許可」を押します。</li>
+    <li>右上の［設定の変更］を押します。</li>
+    <li>一覧から「NekonoteAdmin」（または「nekonoteadmin.exe」）を探します。同じ名前が2つあれば、両方とも直します。</li>
+    <li>その行の「プライベート」と「パブリック」の両方にチェックを入れます。</li>
+    <li>下の［OK］を押します。</li>
+  </ol>
+  <p class="done">スマホでもう一度 QR コードを読んで、「猫の手アドミン スマホで入力」の画面が出れば直っています。</p>
+
+  <h2>2. スマホとパソコンが、同じ Wi-Fi か確かめたいとき</h2>
+  <p>スマホとパソコンは、同じ Wi-Fi（同じ名前）につながっていないと使えません。</p>
+  <h3>パソコンの Wi-Fi の名前を見る</h3>
+  <ol class="w11">
+    <li>画面の右下の、Wi-Fi のマーク（扇の形）を押します。</li>
+    <li>いちばん上の Wi-Fi のボタンの右にある［＞］を押します。</li>
+    <li>「接続済み」と書いてある名前を見ます。</li>
+  </ol>
+  <ol class="w10">
+    <li>画面の右下の、Wi-Fi のマーク（扇の形）を押します。</li>
+    <li>いちばん上の、「接続済み」と書いてある名前を見ます。</li>
+  </ol>
+  <h3>スマホの Wi-Fi の名前を見る</h3>
+  <ul>
+    <li>iPhone：［設定］→［Wi-Fi］で、チェック（✓）がついている名前を見ます。</li>
+    <li>Android：［設定］→［ネットワークとインターネット］（機種によって［接続］）→［Wi-Fi］で、「接続済み」の名前を見ます。</li>
+  </ul>
+  <p class="done">2つの名前が同じなら大丈夫です。ちがうときは、スマホの方を、パソコンと同じ名前の Wi-Fi に切り替えます。</p>
+
+  <h2>3. 「このパソコンから Wi-Fi を出す」がうまくいかないとき</h2>
+  <ol>
+    <li>パソコンの Wi-Fi がオンになっているか確かめます（2. の手順で Wi-Fi のマークを押すと見られます）。オフなら、Wi-Fi のボタンを押してオンにします。</li>
+    <li class="w11">［設定］→［ネットワークとインターネット］→［モバイル ホットスポット］を開きます。「モバイル ホットスポット」の切り替えが押せない（灰色）ときは、このパソコンでは電波を出せません。</li>
+    <li class="w10">［設定］→［ネットワークとインターネット］→ 左の［モバイル ホットスポット］を開きます。「インターネット接続を他のデバイスと共有します」が押せない（灰色）ときは、このパソコンでは電波を出せません。</li>
+    <li>電波を出せないパソコンでは、スマホのテザリング（スマホを Wi-Fi の代わりにすること）を使います。アプリの画面の質問に「ない・わからない」と答えて進むと、やり方が出ます。</li>
+  </ol>
+  <p class="done">スマホの Wi-Fi の一覧に「Nekonote-」で始まる名前が出ていれば、電波は出ています。</p>
+
+  <h2>4. 会社のパソコンで、自分では直せないとき</h2>
+  <p>会社のパソコンは、設定を変えるのに管理者（パソコンを管理している人）の許可が要ることがあります。［はい］が出ずにパスワードを聞かれたり、［設定の変更］が押せなかったりするときは、管理者に次のように頼んでください。</p>
+  <p class="say">「猫の手アドミン（NekonoteAdmin.exe）で、同じ社内の Wi-Fi のスマホから、このパソコンにつなぐ機能を使いたいです。Windows ファイアウォールで、このアプリの受信（プライベートとパブリック）を許可してください。」</p>
+
+  <h2>困ったとき</h2>
+  <ul>
+    <li><strong>Android で、すぐに「このサイトにアクセスできません」と出る</strong>：パソコンが出した Wi-Fi はインターネットにつながっていないので、Android がモバイルデータの方を使ってしまいます。画面の上から下に引いて、「モバイルデータ」をオフにしてから、QR コードを読み直します。</li>
+    <li><strong>iPhone で「このページを開けません」と出る</strong>：画面の［更新］（くるっとした矢印）を押します。</li>
+    <li><strong>スマホに「インターネットにアクセスできません」と出る</strong>：パソコンが出した Wi-Fi のときは、これで正常です。そのまま進みます。</li>
+    <li><strong>お店や病院の「ゲスト用 Wi-Fi」につないでいる</strong>：ゲスト用の Wi-Fi は、スマホとパソコンの間の通信を止めていることがあります。アプリの画面の［最初からやり直す］を押して、ルーターは「ない」と答え、このパソコンから電波を出します。</li>
+    <li><strong>それでもつながらない</strong>：<a href="./#contact">お問い合わせ</a>から、パソコンが Windows 10 か 11 か、スマホが iPhone か Android か、どの手順で止まったかを書いて送ってください。</li>
+  </ul>
+</article>
+</main>
+<script>
+  // ?win=10 / ?win=11（アプリの QR コードに付いてくる）で、その Windows の手順だけを出す
+  (function () {
+    var body = document.body;
+    function pick(win) {
+      if (win) body.dataset.win = win; else delete body.dataset.win;
+      document.querySelectorAll(".win-pick button").forEach(function (b) {
+        b.setAttribute("aria-pressed", b.dataset.win === win ? "true" : "false");
+      });
+    }
+    var m = location.search.match(/win=(10|11)/);
+    pick(m ? m[1] : "");
+    document.querySelectorAll(".win-pick button").forEach(function (b) {
+      b.addEventListener("click", function () { pick(b.dataset.win); });
+    });
+  })();
+</script>
+</body>
+</html>
