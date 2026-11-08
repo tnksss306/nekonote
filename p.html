@@ -33,20 +33,20 @@
   <div class="now" id="now">パソコンにつないでいます…</div>
   <textarea id="text" placeholder="ここに打って変換します" autocomplete="off" autocapitalize="off" enterkeyhint="send"></textarea>
   <div class="row">
-    <button type="button" id="send">送る</button>
-    <button type="button" id="send-next">送って次へ</button>
+    <button type="button" id="send">PCへ送る</button>
+    <button type="button" id="send-next">PCに送って<br>次の欄へ</button>
   </div>
   <div class="row">
-    <button type="button" class="sub" data-key="enter">次の欄へ</button>
+    <button type="button" class="sub" data-key="enter">次の欄へ進む</button>
+    <button type="button" class="sub" data-key="prev">前の欄に戻る</button>
+  </div>
+  <div class="row">
     <button type="button" class="sub" data-key="back">1文字消す</button>
-  </div>
-  <div class="row">
-    <button type="button" class="sub" data-key="clear">欄を空にする</button>
-    <button type="button" class="sub" id="erase">ここを消す</button>
+    <button type="button" class="sub" data-key="clear">欄の中を全部消す</button>
   </div>
   <p class="log" id="log"></p>
-  <p class="tip">打った文字は、［送る］を押したときに、パソコンの画面の今の欄に入ります。文字は暗号にして届けるので、途中では読めません。
-    キーボードの「送信」「改行」を押しても［送って次へ］と同じです。うまく届かないときは、パソコンの「スマホで入力」の QR コードを読み直してください。</p>
+  <p class="tip">打った文字は、［PCへ送る］を押したときに、パソコンの画面の今の欄に入ります。文字は暗号にして届けるので、途中では読めません。
+    キーボードの「送信」「改行」を押しても［PCに送って次の欄へ］と同じです。うまく届かないときは、パソコンの「スマホで入力」の QR コードを読み直してください。</p>
 </main>
 <script>
   (function () {
@@ -150,11 +150,10 @@
 
     document.getElementById("send").addEventListener("click", function () { send(false); });
     document.getElementById("send-next").addEventListener("click", function () { send(true); });
-    document.getElementById("erase").addEventListener("click", function () { text.value = ""; text.focus(); });
     Array.prototype.forEach.call(document.querySelectorAll("[data-key]"), function (b) {
       b.addEventListener("click", function () {
         var k = b.getAttribute("data-key");
-        post({ t: "send", key: k }, function () { say({ enter: "次の欄へ進みました", back: "1文字消しました", clear: "欄を空にしました" }[k], "ok"); });
+        post({ t: "send", key: k }, function () { say({ enter: "次の欄へ進みました", prev: "前の欄に戻りました", back: "1文字消しました", clear: "欄の中を全部消しました" }[k], "ok"); });
       });
     });
     text.addEventListener("keydown", function (e) {
