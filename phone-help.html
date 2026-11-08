@@ -16,11 +16,13 @@
   body[data-win="10"] .w11, body[data-win="11"] .w10 { display: none; }
   .win-label { display: inline-block; font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 6px; background: #e6efe9; color: #2f6f5e; margin-bottom: 4px; }
   .done { margin: 6px 0 18px; padding: 8px 12px; border-left: 4px solid #2f6f5e; background: #f1f7f3; }
+  .warn { padding: 10px 14px; border: 2px solid #d08a00; border-radius: 8px; background: #fff6df; font-weight: bold; }
   .say { padding: 10px 14px; border: 1px dashed #999; border-radius: 8px; background: #fafafa; }
   @media (prefers-color-scheme: dark) {
     .win-label { background: #23392f; color: #bfe3d2; }
     .done { background: #1d2a24; }
     .say { background: #222; border-color: #666; }
+    .warn { background: #3a2c00; border-color: #e0a020; }
   }
 </style>
 </head>
@@ -30,6 +32,7 @@
 <article class="doc">
   <h1>スマホがつながらないとき</h1>
   <p>「スマホで入力」で、スマホの画面が開かないときの直し方です。上から順に試してください。</p>
+  <p class="done">1.3.7 からは、パソコンがインターネットにつながっていれば、QR コードを読むだけでつながります（Wi-Fi の設定はいりません）。このページは、［インターネットを使わずにつなぐ］で同じ Wi-Fi につなぐときの直し方です。まずアプリを最新の版にしてください。</p>
 
   <p><strong>パソコンの Windows はどちらですか？</strong>（アプリの画面に「このパソコンは Windows 〇〇 です」と出ています）</p>
   <div class="win-pick">
@@ -61,7 +64,7 @@
   <p class="done">スマホでもう一度 QR コードを読んで、「猫の手アドミン スマホで入力」の画面が出れば直っています。</p>
 
   <h2>2. スマホとパソコンが、同じ Wi-Fi か確かめたいとき</h2>
-  <p>スマホとパソコンは、同じ Wi-Fi（同じ名前）につながっていないと使えません。</p>
+  <p class="warn">⚠ スマホとパソコンは、同じ名前の Wi-Fi につながっていないと使えません。「〜-5G」「〜-guest」のように後ろが付いた名前も、別の Wi-Fi です。</p>
   <h3>パソコンの Wi-Fi の名前を見る</h3>
   <ol class="w11">
     <li>画面の右下の、Wi-Fi のマーク（扇の形）を押します。</li>
@@ -80,6 +83,7 @@
   <p class="done">2つの名前が同じなら大丈夫です。ちがうときは、スマホの方を、パソコンと同じ名前の Wi-Fi に切り替えます。</p>
 
   <h2>3. 「このパソコンから Wi-Fi を出す」がうまくいかないとき</h2>
+  <p class="warn">⚠ Android は、パソコンから出した電波につなぐとき、「モバイルデータ」をオフにします（画面の上から下に引くと出るボタン）。オンのままだと、スマホの画面が開きません。使い終わったら、オンに戻します。</p>
   <ol>
     <li>パソコンの Wi-Fi がオンになっているか確かめます（2. の手順で Wi-Fi のマークを押すと見られます）。オフなら、Wi-Fi のボタンを押してオンにします。</li>
     <li class="w11">［設定］→［ネットワークとインターネット］→［モバイル ホットスポット］を開きます。「モバイル ホットスポット」の切り替えが押せない（灰色）ときは、このパソコンでは電波を出せません。</li>

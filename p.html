@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>スマホで入力 - 猫の手アドミン</title>
+<style>
+  /* スマホの画面（インターネットの中継所でつなぐ。1.3.7〜）。パソコンの QR コードを読むと開く。
+     # の後ろ（部屋の番号.鍵）はスマホの外へ送られない。打った文字は、この鍵で暗号にしてから中継所へ送る */
+  :root { --navy: #243b53; --accent: #2b6cb0; --bg: #f3f6f9; --line: #cfd8e3; --muted: #5b6b7b; --ok: #2f855a; --err: #c53030; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: #1c2b3a; font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  header { background: var(--navy); color: #fff; padding: 10px 16px; font-weight: 700; }
+  main { padding: 14px 16px 24px; display: grid; gap: 12px; }
+  .now { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+  .now b { font-size: 18px; }
+  .now.bad { border-color: var(--err); color: var(--err); }
+  textarea { width: 100%; font-size: 22px; padding: 12px; border: 2px solid var(--accent); border-radius: 10px; min-height: 92px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  button { font-size: 18px; padding: 14px 8px; border-radius: 10px; border: 0; background: var(--accent); color: #fff; font-weight: 700; }
+  button.sub { background: #fff; color: var(--accent); border: 2px solid var(--accent); }
+  button:active { transform: scale(.98); }
+  .log { font-size: 14px; color: var(--muted); min-height: 1.4em; }
+  .log.ok { color: var(--ok); } .log.err { color: var(--err); }
+  .tip { font-size: 13px; color: var(--muted); line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>猫の手アドミン　スマホで入力</header>
+<main>
+  <div class="now" id="now">パソコンにつないでいます…</div>
+  <textarea id="text" placeholder="ここに打って変換します" autocomplete="off" autocapitalize="off" enterkeyhint="send"></textarea>
+  <div class="row">
+    <button type="button" id="send">送る</button>
+    <button type="button" id="send-next">送って次へ</button>
+  </div>
+  <div class="row">
+    <button type="button" class="sub" data-key="enter">次の欄へ</button>
+    <button type="button" class="sub" data-key="back">1文字消す</button>
+  </div>
+  <div class="row">
+    <button type="button" class="sub" data-key="clear">欄を空にする</button>
+    <button type="button" class="sub" id="erase">ここを消す</button>
+  </div>
+  <p class="log" id="log"></p>
+  <p class="tip">打った文字は、［送る］を押したときに、パソコンの画面の今の欄に入ります。文字は暗号にして届けるので、途中では読めません。
+    キーボードの「送信」「改行」を押しても［送って次へ］と同じです。うまく届かないときは、パソコンの「スマホで入力」の QR コードを読み直してください。</p>
+</main>
+<script>
+  (function () {
+    var RELAY = "wss://nekonote-license.cathandlabo.workers.dev/r/";  // 受付係の中継所（server/worker.js）
+    if (location.hostname === "127.0.0.1") RELAY = "ws://127.0.0.1:8787/r/";  // このパソコンで試すときだけ（wrangler dev）
+    var TO_PC = new TextEncoder().encode("nk1:p2c"), TO_PHONE = new TextEncoder().encode("nk1:c2p");
+    var text = document.getElementById("text"), now = document.getElementById("now"), log = document.getElementById("log");
+    var parts = location.hash.slice(1).split(".");
+    var room = parts[0] || "", key = null, ws = null, wait = 1000, sentN = 0, gotN = 0, pcSeen = false, pending = {};
+
+    function say(msg, cls) { log.textContent = msg; log.className = "log " + (cls || ""); }
+    function status(msg, bad) { now.className = "now" + (bad ? " bad" : ""); now.textContent = msg; }
+    function show(d) {
+      if (!d.label) { status("パソコンの画面で、入れたい欄をクリックしてください。"); return; }
+      now.className = "now" + (d.writable ? "" : " bad");
+      now.innerHTML = "";
+      now.appendChild(document.createTextNode("パソコンの今の欄："));
+      var b = document.createElement("b"); b.textContent = d.label; now.appendChild(b);
+      if (!d.writable) now.appendChild(document.createTextNode("（この欄には文字を送れません）"));
+    }
+    function b64(bytes) { var s = ""; bytes.forEach(function (c) { s += String.fromCharCode(c); }); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+    function unb64(t) { var s = atob(t.replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(s, function (c) { return c.charCodeAt(0); }); }
+
+    // 暗号にする・もどす（パソコンの app/relay.py と同じ形：nonce 12 バイト + AES-GCM）
+    function seal(obj) {
+      sentN = Math.max(sentN + 1, Date.now() * 1000);
+      obj.n = sentN;
+      var nonce = crypto.getRandomValues(new Uint8Array(12));
+      var data = new TextEncoder().encode(JSON.stringify(obj));
+      return crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce, additionalData: TO_PC }, key, data).then(function (ct) {
+        var all = new Uint8Array(12 + ct.byteLength); all.set(nonce); all.set(new Uint8Array(ct), 12);
+        return { n: obj.n, text: b64(all) };
+      });
+    }
+    function unseal(t) {
+      var raw = unb64(t);
+      return crypto.subtle.decrypt({ name: "AES-GCM", iv: raw.slice(0, 12), additionalData: TO_PHONE }, key, raw.slice(12))
+        .then(function (pt) { return JSON.parse(new TextDecoder().decode(pt)); });
+    }
+
+    function post(obj, done) {
+      if (!ws || ws.readyState !== 1 || !pcSeen) { say("パソコンにつながっていません。パソコンの「スマホで入力」の画面を開いて、QR コードを読み直してください。", "err"); return; }
+      seal(obj).then(function (m) {
+        // パソコンから「受け取った」（ack）が5秒たっても来なければ、届かなかったと知らせる
+        pending[m.n] = { done: done, timer: setTimeout(function () { delete pending[m.n]; say("届きませんでした。もう一度押してください。", "err"); }, 5000) };
+        ws.send(m.text);
+      });
+    }
+    function send(next) {
+      var v = text.value;
+      if (!v && !next) { text.focus(); return; }
+      var obj = next ? { t: "send", text: v, key: "enter" } : { t: "send", text: v };
+      post(obj, function () {
+        if (v) say("送りました：" + v + (next ? "（次の欄へ）" : ""), "ok"); else say("次の欄へ進みました", "ok");
+        text.value = ""; text.focus();
+      });
+    }
+
+    function connect() {
+      if (ws && ws.readyState <= 1) return;
+      ws = new WebSocket(RELAY + room);
+      ws.onopen = function () {
+        wait = 1000;
+        status("パソコンを探しています…");
+        seal({ t: "hello" }).then(function (m) { if (ws.readyState === 1) ws.send(m.text); });
+        setTimeout(function () { if (!pcSeen) status("パソコンが見つかりません。パソコンで「スマホで入力」の画面を開いて、QR コードを読み直してください。", true); }, 5000);
+      };
+      ws.onmessage = function (e) {
+        if (e.data === "pong") return;
+        unseal(e.data).then(function (d) {
+          if (typeof d.n !== "number" || d.n <= gotN) return;  // 古いものを送り直されても使わない
+          gotN = d.n;
+          if (d.t !== "state") return;
+          pcSeen = true;
+          show(d);
+          var p = d.ack && pending[d.ack];
+          if (p) { clearTimeout(p.timer); delete pending[d.ack]; if (p.done) p.done(); }
+        }).catch(function () { /* この部屋の鍵で作られていないものは捨てる */ });
+      };
+      ws.onclose = function () {
+        pcSeen = false;
+        status("つなぎ直しています…", true);
+        if (document.hidden) return;  // 画面を消しているあいだは待つ（もどったら visibilitychange でつなぐ）
+        setTimeout(connect, wait);
+        wait = Math.min(wait * 2, 15000);
+      };
+    }
+
+    if (!/^[A-Za-z0-9_-]{22}$/.test(room) || !parts[1] || !window.crypto || !crypto.subtle) {
+      status("この画面は、パソコンの「スマホで入力」の QR コードから開きます。QR コードを読み直してください。", true);
+      return;
+    }
+    crypto.subtle.importKey("raw", unb64(parts[1]), "AES-GCM", false, ["encrypt", "decrypt"]).then(function (k) {
+      key = k;
+      connect();
+    }).catch(function () { status("QR コードを読み直してください。", true); });
+
+    // スマホの画面を消して戻ってきたとき、切れていればすぐつなぎ直す
+    document.addEventListener("visibilitychange", function () { if (!document.hidden && key) { wait = 1000; connect(); } });
+    setInterval(function () { if (ws && ws.readyState === 1) ws.send("ping"); }, 25000);  // つながりを保つ（中継所が pong と返すだけ）
+
+    document.getElementById("send").addEventListener("click", function () { send(false); });
+    document.getElementById("send-next").addEventListener("click", function () { send(true); });
+    document.getElementById("erase").addEventListener("click", function () { text.value = ""; text.focus(); });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-key]"), function (b) {
+      b.addEventListener("click", function () {
+        var k = b.getAttribute("data-key");
+        post({ t: "send", key: k }, function () { say({ enter: "次の欄へ進みました", back: "1文字消しました", clear: "欄を空にしました" }[k], "ok"); });
+      });
+    });
+    text.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); send(true); }
+    });
+  })();
+</script>
+</body>
+</html>
