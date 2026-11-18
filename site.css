@@ -44,8 +44,8 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.35; word-break: auto-ph
 .top nav a:not(.brand):hover { color: var(--navy-ink); text-decoration: underline; }
 .hero { padding: 36px 0 44px; }
 .hero .eyebrow { margin: 0 0 8px; font-size: 13px; letter-spacing: .2em; color: var(--navy-muted); }
-.hero .concept { margin: 0 0 14px; padding-left: 12px; border-left: 3px solid #f2d48f; color: #dfe7ef; font-size: 14px; line-height: 1.6; }
-.hero .concept strong { display: block; font-size: 16px; color: #f2d48f; }
+.hero .concept { margin: 6px 0 22px; padding-left: 16px; border-left: 5px solid #f2d48f; color: #dfe7ef; font-size: clamp(16px, 2.2vw, 20px); line-height: 1.6; }
+.hero .concept strong { display: block; font-family: var(--display); font-weight: 900; font-size: clamp(22px, 3.6vw, 32px); line-height: 1.4; color: #f2d48f; margin-bottom: 4px; }
 .hero .concept span { display: block; }
 .hero h1 { font-weight: 900; font-size: clamp(28px, 5vw, 42px); margin: 0 0 14px; }
 .hero h1 em { font-style: normal; color: #f2d48f; }
